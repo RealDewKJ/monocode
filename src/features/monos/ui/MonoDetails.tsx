@@ -16,6 +16,7 @@ import { HabitPage } from "./HabitPage";
 import { NewHabitPage } from "./NewHabitPage";
 import { MonoProjects } from "./MonoProjects";
 import { MonoSettingsPage } from "./MonoSettingsPage";
+import { MonoSkillsPage } from "./MonoSkillsPage";
 import { habitActions, HabitsList, useHabits } from "./MonoHabits";
 import { MemoryPage, SoulPage } from "./MonoFilePages";
 import { PageHeader, Property } from "./monoPanelParts";
@@ -24,7 +25,7 @@ import { MonoSidebar, MonoSidebarHeader } from "./MonoSidebar";
 
 /** A page opened directly from Details, or one habit inside its list. */
 type Route =
-  | { kind: "habits" | "soul" | "memory" | "new-habit" }
+  | { kind: "habits" | "soul" | "memory" | "skills" | "new-habit" }
   | { kind: "habit"; id: string };
 
 type Props = {
@@ -79,6 +80,22 @@ export function MonoDetails({
   const back = () => setRoutes((current) => current.slice(0, -1));
 
   const pages: StackPage[] = routes.flatMap((route, depth): StackPage[] => {
+    if (route.kind === "skills")
+      return [
+        {
+          key: "skills",
+          node: (
+            <MonoSkillsPage
+              key={monoId}
+              monoId={monoId}
+              cwd={cwd}
+              projects={agent.projects.map((project) => project.path)}
+              files={files}
+              onBack={back}
+            />
+          ),
+        },
+      ];
     if (route.kind === "habits")
       return [
         {
@@ -180,6 +197,7 @@ export function MonoDetails({
           onReset={onReset}
           counts={{
             habits: habits?.length,
+            skills: files ? (files.skills?.length ?? 0) : undefined,
             memory: files ? memoryLines(files.memory).length : undefined,
           }}
         >

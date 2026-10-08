@@ -363,7 +363,7 @@ fn path_is_within(path: &Path, root: &Path) -> bool {
     path == root || path.starts_with(root)
 }
 
-fn scan_root(root: &Path, scope: &str, source: &str) -> Vec<DiscoveredSkill> {
+pub(crate) fn scan_root(root: &Path, scope: &str, source: &str) -> Vec<DiscoveredSkill> {
     let Ok(reader) = std::fs::read_dir(root) else {
         return Vec::new();
     };
@@ -426,7 +426,7 @@ fn read_prefix(path: &Path, max: usize) -> std::io::Result<Vec<u8>> {
     Ok(buf)
 }
 
-fn parse_frontmatter(text: &str, fallback: &str) -> (String, String) {
+pub(crate) fn parse_frontmatter(text: &str, fallback: &str) -> (String, String) {
     let trimmed = text.trim_start_matches('\u{feff}');
     let Some(rest) = trimmed.strip_prefix("---") else {
         return (fallback.to_string(), String::new());
@@ -502,13 +502,17 @@ fn unquote(value: &str) -> String {
         let first = bytes[0];
         let last = bytes[bytes.len() - 1];
         if (first == b'"' && last == b'"') || (first == b'\'' && last == b'\'') {
-            return value[1..value.len() - 1].to_string();
+            if first == b'\'' {
+                return value[1..value.len() - 1].replace("''", "'");
+            }
+            return serde_json::from_str::<String>(value)
+                .unwrap_or_else(|_| value[1..value.len() - 1].to_string());
         }
     }
     value.to_string()
 }
 
-fn is_valid_skill_name(name: &str) -> bool {
+pub(crate) fn is_valid_skill_name(name: &str) -> bool {
     if name.is_empty() || name.len() > 64 {
         return false;
     }

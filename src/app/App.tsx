@@ -565,6 +565,7 @@ import {
   writeAgentFile,
 } from "../features/monos/model/monoFiles";
 import { useMonoHabits } from "./hooks/useMonoHabits";
+import { createMonoSkill, readMonoSkill, updateMonoSkill } from "../features/monos/model/monoSkills";
 import { useFloatingMono } from "./hooks/useFloatingMono";
 import {
   dropRelays,
@@ -7821,7 +7822,7 @@ function Workspace({
             agentFiles &&
             agentLook &&
             agentPlan &&
-            (agentPlan.soul || agentPlan.memory)
+            (agentPlan.soul || agentPlan.memory || agentPlan.skills)
           ) {
             appContext.push(monoContext(agentLook, agentFiles, agentPlan));
           }
@@ -10835,6 +10836,7 @@ function Workspace({
               );
             },
             habits: { load: loadHabits, update: updateHabits },
+            skills: { read: readMonoSkill, create: createMonoSkill, update: updateMonoSkill },
             agentFiles: (monoId) => loadMonoFiles(monoId),
             readAgentFile: (monoId, path) => readAgentFile(monoId, path),
             writeAgentFile: (monoId, path, text, hash) =>
