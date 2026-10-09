@@ -10,6 +10,7 @@ import {
 const KEYWORD_DARK = "#ff8ffd";
 const STRING_DARK = "#b4fa72";
 const COMMENT_DARK = "#fefdc2";
+const PROPERTY_DARK = "#d0d1fe";
 
 describe("highlightSource", () => {
   it("colors TypeScript keywords, strings, and comments", () => {
@@ -50,6 +51,12 @@ describe("highlightSource", () => {
       expect(token(lines[0], "// note")?.color).toBe(COMMENT_DARK);
     },
   );
+
+  it("colors declarations in indented Sass stylesheets", async () => {
+    const language = await languageForPath("theme.sass");
+    const lines = highlightSource(".card\n  color: red", language, "dark");
+    expect(token(lines[1], "color")?.color).toBe(PROPERTY_DARK);
+  });
 
   it("leaves unknown languages unstyled", () => {
     const lines = highlightSource("plain text", null, "dark");
