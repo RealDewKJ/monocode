@@ -29,6 +29,28 @@ describe("highlightSource", () => {
     expect(token(lines[1], "// note")?.color).toBe(COMMENT_DARK);
   });
 
+  it("colors script blocks in Vue and Svelte components", async () => {
+    for (const path of ["App.vue", "Counter.svelte"]) {
+      const language = await languageForPath(path);
+      const lines = highlightSource(
+        '<script>\nconst name = "agent";\n</script>',
+        language,
+        "dark",
+      );
+      expect(token(lines[1], "const")?.color).toBe(KEYWORD_DARK);
+      expect(token(lines[1], '"agent"')?.color).toBe(STRING_DARK);
+    }
+  });
+
+  it.each(["theme.scss", "theme.less"])(
+    "colors comments in %s stylesheets",
+    async (path) => {
+      const language = await languageForPath(path);
+      const lines = highlightSource("// note\na { color: red; }", language, "dark");
+      expect(token(lines[0], "// note")?.color).toBe(COMMENT_DARK);
+    },
+  );
+
   it("leaves unknown languages unstyled", () => {
     const lines = highlightSource("plain text", null, "dark");
     expect(lines).toEqual([[{ text: "plain text" }]]);
