@@ -13,23 +13,6 @@ const COMMENT_DARK = "#fefdc2";
 const PROPERTY_DARK = "#d0d1fe";
 
 describe("highlightSource", () => {
-  it("colors TypeScript keywords, strings, and comments", () => {
-    const lines = highlightSource(
-      'const name = "agent";\n// note',
-      javascript({ typescript: true }),
-      "dark",
-    );
-    expect(token(lines[0], "const")?.color).toBe(KEYWORD_DARK);
-    expect(token(lines[0], '"agent"')?.color).toBe(STRING_DARK);
-    expect(token(lines[1], "// note")?.color).toBe(COMMENT_DARK);
-  });
-
-  it("colors comments in JSONC files", async () => {
-    const language = await languageForPath("settings.jsonc");
-    const lines = highlightSource('{\n  // note\n  "a": 1\n}', language, "dark");
-    expect(token(lines[1], "// note")?.color).toBe(COMMENT_DARK);
-  });
-
   it("colors script blocks in Vue and Svelte components", async () => {
     for (const path of ["App.vue", "Counter.svelte"]) {
       const language = await languageForPath(path);
@@ -56,6 +39,23 @@ describe("highlightSource", () => {
     const language = await languageForPath("theme.sass");
     const lines = highlightSource(".card\n  color: red", language, "dark");
     expect(token(lines[1], "color")?.color).toBe(PROPERTY_DARK);
+  });
+
+  it("colors TypeScript keywords, strings, and comments", () => {
+    const lines = highlightSource(
+      'const name = "agent";\n// note',
+      javascript({ typescript: true }),
+      "dark",
+    );
+    expect(token(lines[0], "const")?.color).toBe(KEYWORD_DARK);
+    expect(token(lines[0], '"agent"')?.color).toBe(STRING_DARK);
+    expect(token(lines[1], "// note")?.color).toBe(COMMENT_DARK);
+  });
+
+  it("colors comments in JSONC files", async () => {
+    const language = await languageForPath("settings.jsonc");
+    const lines = highlightSource('{\n  // note\n  "a": 1\n}', language, "dark");
+    expect(token(lines[1], "// note")?.color).toBe(COMMENT_DARK);
   });
 
   it("leaves unknown languages unstyled", () => {

@@ -12,6 +12,18 @@ function languageName(extension: Extension): string | null {
 
 describe("languageForPath", () => {
   it.each([
+    ["App.vue", "vue"],
+    ["theme.scss", "sass"],
+    ["theme.sass", "sass"],
+    ["theme.less", "less"],
+  ])("maps component and stylesheet file %s to %s", async (path, name) => {
+    const extension = await languageForPath(path);
+
+    expect(extension).not.toBeNull();
+    expect(languageName(extension!)).toBe(name);
+  });
+
+  it.each([
     "index.php",
     "Program.cs",
     "main.go",
@@ -54,18 +66,6 @@ describe("languageForPath", () => {
     "Counter.svelte",
   ])("loads highlighting for additional mainstream file %s", async (path) => {
     await expect(languageForPath(path)).resolves.not.toBeNull();
-  });
-
-  it.each([
-    ["App.vue", "vue"],
-    ["theme.scss", "sass"],
-    ["theme.sass", "sass"],
-    ["theme.less", "less"],
-  ])("maps component and stylesheet file %s to %s", async (path, name) => {
-    const extension = await languageForPath(path);
-
-    expect(extension).not.toBeNull();
-    expect(languageName(extension!)).toBe(name);
   });
 
   it("leaves unknown file types as plain text", async () => {
